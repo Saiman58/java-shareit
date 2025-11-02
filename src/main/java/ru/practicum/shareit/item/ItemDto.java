@@ -5,10 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 
-/**
- * TODO Sprint add-controllers.
- * DTO для Item - то что увидит пользователь
- */
 @Data
 public class ItemDto {
     private Long id;

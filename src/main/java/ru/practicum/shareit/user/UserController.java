@@ -44,7 +44,8 @@ public class UserController {
 
     // Обновить информацию о пользователе по id
     @PatchMapping("/{userId}")
-    public UserDto updateUser(@PathVariable Long userId,
+    public UserDto updateUser(@Positive
+                              @PathVariable Long userId,
                               @RequestBody UserDto userDtoUpdates) {
         log.info("PATCH/users - Запрос на обновление информации о пользователе: {}", userId);
         return userService.updateUser(userId, userDtoUpdates);

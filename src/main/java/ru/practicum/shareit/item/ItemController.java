@@ -66,10 +66,10 @@ public class ItemController {
 
     //обновление вещи пользователем
     @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@Positive
-                              @PathVariable Long itemId,
-                              @RequestBody ItemDto itemDto,
-                              @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public ItemDto updateItem(
+            @PathVariable Long itemId,
+            @RequestBody ItemDto itemDto,
+            @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("PATCH/items/{} - Запрос на обновление вещи - {} пользователем {}", itemId, itemId, userId);
         return itemService.updateItem(itemId, itemDto, userId);
     }

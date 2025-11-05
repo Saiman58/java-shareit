@@ -5,11 +5,11 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
- * TODO Sprint add-controllers.
+ * DTO User - то что увидит пользователь
  */
-@Data
-public class User {
 
+@Data
+public class UserDto {
     private Long id;
 
     @NotBlank(message = "Логин или имя не может быть пустым")

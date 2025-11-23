@@ -1,8 +1,5 @@
 package ru.practicum.shareit.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.NotBlank;
-
 import lombok.Data;
 import ru.practicum.shareit.user.User;
 

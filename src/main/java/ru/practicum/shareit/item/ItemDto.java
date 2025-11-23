@@ -3,7 +3,9 @@ package ru.practicum.shareit.item;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import ru.practicum.shareit.booking.BookingDto;
 
+import java.util.List;
 
 @Data
 public class ItemDto {
@@ -19,10 +21,20 @@ public class ItemDto {
     @NotNull(message = "Статус должен быть указан")
     private Boolean available;
 
-    //id владельца вещи
+    //владелец вещи
     private Long ownerId;
 
-    //id запроса
+    //запрос
     private Long requestId;
 
+    //комментарии
+    private List<CommentDto> comments;
+
+    // последнее бронирование
+    private BookingDto lastBooking;
+
+    // ближайшее будущее бронирование
+    private BookingDto nextBooking;
 }
+
+

@@ -16,13 +16,7 @@ import java.time.LocalDateTime;
 @Data
 public class ItemRequest {
     private Long id;
-
-    @NotBlank(message = "Описание запроса не может быть пустым")
     private String description;
-
-    // пользователь, который создал запрос
-    private User request;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    private User requester;
     private LocalDateTime created;
 }

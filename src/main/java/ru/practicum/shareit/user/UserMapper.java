@@ -3,9 +3,9 @@ package ru.practicum.shareit.user;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-/**
- * Преобразование
- */
+import java.util.ArrayList;
+import java.util.List;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserMapper {
 
@@ -24,6 +24,15 @@ public class UserMapper {
         user.setName(userDto.getName());
         user.setEmail(userDto.getEmail());
         return user;
+    }
+
+    public static List<UserDto> mapToUserDto(Iterable<User> users) {
+        List<UserDto> result = new ArrayList<>();
+
+        for (User user : users) {
+            result.add(toUserDto(user));
+        }
+        return result;
     }
 
 }

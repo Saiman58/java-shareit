@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item;
 
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.slf4j.Logger;
@@ -13,9 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Validated
 @RestController
 @RequestMapping("/items")
@@ -70,7 +66,7 @@ public class ItemController {
             @PathVariable Long itemId,
             @RequestBody ItemDto itemDto,
             @RequestHeader("X-Sharer-User-Id") Long userId) {
-        log.info("PATCH/items/{} - Запрос на обновление вещи - {} пользователем {}", itemId, itemId, userId);
+        log.info("PATCH/items/{} - Запрос на обновление вещи - {} пользователем - {}", itemId, itemId, userId);
         return itemService.updateItem(itemId, itemDto, userId);
     }
 
@@ -79,5 +75,14 @@ public class ItemController {
     public Collection<ItemDto> getAllItems() {
         log.info("GET/items - Запрос на вывод всех вещей");
         return itemService.getAllItems();
+    }
+
+    // Добавление комментария
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@PathVariable Long itemId,
+                                 @RequestHeader("X-Sharer-User-Id") Long userId,
+                                 @Valid @RequestBody CommentDto commentDto) {
+        log.info("POST /items/{}/comment - Запрос на добавление комментария пользователем {}", itemId, userId);
+        return itemService.addComment(userId, itemId, commentDto);
     }
 }

@@ -12,7 +12,7 @@ public interface ItemMapper {
     @Mapping(target = "comments", ignore = true)
     @Mapping(target = "lastBooking", ignore = true)
     @Mapping(target = "nextBooking", ignore = true)
-    ItemDto toItemDto (Item item);
+    ItemDto toItemDto(Item item);
 
 
     @Mapping(target = "owner", ignore = true)

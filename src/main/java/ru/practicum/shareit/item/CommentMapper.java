@@ -1,36 +1,19 @@
 package ru.practicum.shareit.item;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Component;
-import ru.practicum.shareit.user.User;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-import java.time.LocalDateTime;
+@Mapper(componentModel = "spring")
+public interface CommentMapper {
 
-@Component
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class CommentMapper {
+    @Mapping(source = "author.name", target = "authorName")
+    CommentDto toCommentDto (Comment comment);
 
-    public static CommentDto toCommentDto(Comment comment) {
-        if (comment == null) {
-            return null;
-        }
-        CommentDto componentDto = new CommentDto();
-        componentDto.setId(comment.getId());
-        componentDto.setText(comment.getText());
-        componentDto.setCreated(comment.getCreated());
-        componentDto.setAuthorName(comment.getAuthor().getName());
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "item", ignore = true)
+    @Mapping(target = "author", ignore = true)
+    @Mapping(target = "created", expression = "java(java.time.LocalDateTime.now())")
+    Comment toComment (CommentDto commentDto);
 
-        return componentDto;
-    }
-
-    public static Comment toComment(CommentDto commentDto, Item item, User author) {
-        Comment comment = new Comment();
-        comment.setText(commentDto.getText());
-        comment.setItem(item);
-        comment.setAuthor(author);
-        comment.setCreated(LocalDateTime.now());
-        return comment;
-    }
 
 }

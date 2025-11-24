@@ -38,7 +38,6 @@ public class BookingDto {
     //вещь
     private ItemDto item;
 
-
     @AssertTrue(message = "Дата окончания должна быть после даты начала")
     public boolean isEndAfterStart() {
         return end != null && start != null && end.isAfter(start);

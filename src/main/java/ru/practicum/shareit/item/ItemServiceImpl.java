@@ -25,6 +25,8 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemMapper itemMapper;
+    private final CommentMapper commentMapper;
     private static final Logger log = LoggerFactory.getLogger(ItemServiceImpl.class);
 
 
@@ -34,19 +36,19 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto createItem(Long ownerId, ItemDto itemDto) {
         User owner = userService.findUserById(ownerId);
 
-        Item item = ItemMapper.toItem(itemDto);
+        Item item = itemMapper.toItem(itemDto);
         item.setOwner(owner);
         Item savedItem = itemRepository.save(item);
 
         log.info("Вещь: {} добавлена пользователем: {}", item.getName(), ownerId);
-        return ItemMapper.toItemDto(savedItem);
+        return itemMapper.toItemDto(savedItem);
     }
 
     //вывод всех вещей
     @Override
     public Collection<ItemDto> getAllItems() {
         List<Item> items = itemRepository.findAll();
-        return ItemMapper.mapToItemDto(items);
+        return itemMapper.mapToItemDto(items);
     }
 
     // информация о вещи по id
@@ -59,10 +61,10 @@ public class ItemServiceImpl implements ItemService {
                     return new NotFoundException("Вещь с id = " + itemId + " не найден");
                 });
 
-        ItemDto itemDto = ItemMapper.toItemDto(item);
+        ItemDto itemDto = itemMapper.toItemDto(item);
 
         List<CommentDto> comments = commentRepository.findByItemId(itemId).stream()
-                .map(CommentMapper::toCommentDto)
+                .map(commentMapper::toCommentDto)
                 .collect(Collectors.toList());
 
         itemDto.setComments(comments);
@@ -78,20 +80,34 @@ public class ItemServiceImpl implements ItemService {
 
         List<Item> items = itemRepository.findByOwnerId(ownerId);
 
-        List<ItemDto> itemDtos = items.stream()
-                .map(item -> {
-                    ItemDto dto = ItemMapper.toItemDto(item);
-
-                    List<CommentDto> comments = commentRepository.findByItemId(item.getId()).stream()
-                            .map(CommentMapper::toCommentDto)
-                            .collect(Collectors.toList());
-
-                    dto.setComments(comments);
-                    return dto;
-                })
+        List<Long> itemIds = items.stream()
+                .map(Item::getId)
                 .collect(Collectors.toList());
-        log.info("Найдено {} вещей у владельца {}", itemDtos.size(), ownerId);
-        return itemDtos;
+
+        List<Comment> allComments = commentRepository.findByItemIdIn(itemIds);
+
+        Map<Long, List<CommentDto>> commentsMap = new HashMap<>();
+
+        for (Comment comment : allComments) {
+            Long itemId = comment.getItem().getId();
+            CommentDto commentDto = commentMapper.toCommentDto(comment);
+
+            commentsMap.computeIfAbsent(itemId, k -> new ArrayList<>())
+                    .add(commentDto);
+        }
+
+        List<ItemDto> result = new ArrayList<>();
+
+        for (Item item : items) {
+            ItemDto itemDto = itemMapper.toItemDto(item);
+
+            List<CommentDto> comments = commentsMap.get(item.getId());
+            itemDto.setComments(comments != null ? comments : List.of());
+
+            result.add(itemDto);
+        }
+
+        return result;
     }
 
     // Поиск по тексту
@@ -103,7 +119,7 @@ public class ItemServiceImpl implements ItemService {
         }
         List<Item> items = itemRepository.searchAvailableItems(text.toLowerCase());
         return items.stream()
-                .map(ItemMapper::toItemDto)
+                .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 
@@ -145,7 +161,7 @@ public class ItemServiceImpl implements ItemService {
             log.warn("Данные вещи не изменились");
             throw new ValidationException("Данные вещи не изменились");
         }
-        return ItemMapper.toItemDto(existingItem);
+        return itemMapper.toItemDto(existingItem);
     }
 
     @Override
@@ -178,6 +194,6 @@ public class ItemServiceImpl implements ItemService {
         Comment savedComment = commentRepository.save(comment);
         log.info("Комментарий успешно добавлен: {}", savedComment.getId());
 
-        return CommentMapper.toCommentDto(savedComment);
+        return commentMapper.toCommentDto(savedComment);
     }
 }

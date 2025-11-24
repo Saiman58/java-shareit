@@ -27,6 +27,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final BookingMapper bookingMapper;
 
     //создание брони
     @Override
@@ -50,12 +51,12 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Дата начала должна быть раньше даты окончания");
         }
 
-        Booking booking = BookingMapper.tobooking(bookingDto);
+        Booking booking = bookingMapper.tobooking(bookingDto);
         booking.setItem(item);
         booking.setBooker(booker);
 
         Booking saveBooking = bookingRepository.save(booking);
-        return BookingMapper.toBookingDto(saveBooking);
+        return bookingMapper.toBookingDto(saveBooking);
     }
 
     //подтверждение статуса
@@ -77,7 +78,7 @@ public class BookingServiceImpl implements BookingService {
 
         Booking updatedBooking = bookingRepository.save(booking);
 
-        return BookingMapper.toBookingDto(updatedBooking);
+        return bookingMapper.toBookingDto(updatedBooking);
     }
 
     //получение данных о конкретном бронировании
@@ -93,7 +94,7 @@ public class BookingServiceImpl implements BookingService {
             throw new AccessDeniedException("Доступ запрещен");
         }
 
-        return BookingMapper.toBookingDto(booking);
+        return bookingMapper.toBookingDto(booking);
     }
 
     //Получение списка всех бронирований текущего пользователя
@@ -129,7 +130,7 @@ public class BookingServiceImpl implements BookingService {
 
         }
         return bookings.stream()
-                .map(BookingMapper::toBookingDto)
+                .map(bookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
 
@@ -168,7 +169,7 @@ public class BookingServiceImpl implements BookingService {
 
 
         return bookings.stream()
-                .map(BookingMapper::toBookingDto)
+                .map(bookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
 

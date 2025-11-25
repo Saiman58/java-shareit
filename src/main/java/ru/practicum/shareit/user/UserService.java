@@ -13,8 +13,11 @@ public interface UserService {
     // Обновить информацию о пользователе по id
     UserDto updateUser(Long userId, UserDto updates);
 
-    //Найти пользователя по id
+    //поиск пользователя по id для внутренних нужд проекта
     User findUserById(Long userId);
+
+    //поиск пользователя по id для пользователя
+    UserDto findUserByIdToDto(Long userId);
 
     //удаление пользователя по id
     void deleteUser(Long id);

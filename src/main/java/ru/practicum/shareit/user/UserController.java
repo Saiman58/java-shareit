@@ -11,10 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 
-/**
- * TODO Sprint add-controllers.
- */
-
 @Validated
 @RestController
 @RequestMapping("/users")
@@ -54,11 +50,8 @@ public class UserController {
     //Найти пользователя по id
     @GetMapping("/{userId}")
     public UserDto findUserById(@Positive @PathVariable Long userId) {
-
-        //У меня возник вопрос, подскажите можно ли производить маппинг в контроллере?
-        User user = userService.findUserById(userId);
         log.info("GET/users/{} - Запрос на просмотр информации о пользователе с id: {}", userId, userId);
-        return UserMapper.toUserDto(user);
+        return userService.findUserByIdToDto(userId);
     }
 
     //удаление пользователя по id

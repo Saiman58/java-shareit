@@ -1,21 +1,32 @@
 package ru.practicum.shareit.user;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-/**
- * TODO Sprint add-controllers.
- */
-@Data
+import java.time.Instant;
+
+@Getter
+@Setter
+@Entity
+@ToString
+@Table(name = "users", schema = "public")
 public class User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Логин или имя не может быть пустым")
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @NotBlank(message = "Почта не должна быть пустой")
-    @Email(message = "Укажите корректную почту")
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
+
+    @Column(name = "registration_date")
+    private Instant registrationDate = Instant.now();
+
+    @Enumerated(EnumType.STRING)
+    private UserState state;
 }

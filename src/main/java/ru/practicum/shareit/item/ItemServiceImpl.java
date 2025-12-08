@@ -9,6 +9,8 @@ import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 
@@ -27,6 +29,7 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
     private final ItemMapper itemMapper;
     private final CommentMapper commentMapper;
+    private final ItemRequestRepository itemRequestRepository;
     private static final Logger log = LoggerFactory.getLogger(ItemServiceImpl.class);
 
 
@@ -34,13 +37,36 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemDto createItem(Long ownerId, ItemDto itemDto) {
+        log.info("Создание предмета. ownerId={}, itemDto.requestId={}", ownerId, itemDto.getRequestId());
+
         User owner = userService.findUserById(ownerId);
 
         Item item = itemMapper.toItem(itemDto);
         item.setOwner(owner);
+
+        // связь с запросом, если указан requestId
+        if (itemDto.getRequestId() != null) {
+            log.info("Пытаюсь привязать предмет к запросу ID={}", itemDto.getRequestId());
+
+            // Нужно получить ItemRequest из БД
+            ItemRequest request = itemRequestRepository.findById(itemDto.getRequestId())
+                    .orElseThrow(() -> {
+                        log.error("Запрос с ID {} не найден", itemDto.getRequestId());
+                        return new NotFoundException("Запрос с ID " + itemDto.getRequestId() + " не найден");
+                    });
+
+            item.setRequest(request);
+            log.info("Предмет '{}' привязан к запросу ID={}", item.getName(), request.getId());
+        }
+
         Item savedItem = itemRepository.save(item);
 
-        log.info("Вещь: {} добавлена пользователем: {}", item.getName(), ownerId);
+        // Проверяем, сохранилась ли связь
+        log.info("Предмет сохранен. ID={}, Имя='{}', RequestID={}",
+                savedItem.getId(),
+                savedItem.getName(),
+                savedItem.getRequest() != null ? savedItem.getRequest().getId() : "null");
+
         return itemMapper.toItemDto(savedItem);
     }
 
@@ -168,6 +194,10 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public CommentDto addComment(Long userId, Long itemId, CommentDto commentDto) {
         log.info("Добавление комментария пользователем: {} к вещи {}", userId, itemId);
+
+        if (commentDto.getText() == null || commentDto.getText().trim().isEmpty()) {
+            log.error("Текст комментария пустой");
+        }
 
         User author = userService.findUserById(userId);
 

@@ -9,6 +9,7 @@ import java.util.List;
 public interface ItemMapper {
 
     @Mapping(source = "owner.id", target = "ownerId")
+    @Mapping(source = "request.id", target = "requestId")
     @Mapping(target = "comments", ignore = true)
     @Mapping(target = "lastBooking", ignore = true)
     @Mapping(target = "nextBooking", ignore = true)
@@ -16,6 +17,7 @@ public interface ItemMapper {
 
 
     @Mapping(target = "owner", ignore = true)
+    @Mapping(target = "request", ignore = true)
     Item toItem(ItemDto itemDto);
 
     List<ItemDto> mapToItemDto(List<Item> items);

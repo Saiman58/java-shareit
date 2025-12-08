@@ -22,7 +22,7 @@ public class ItemRequestResponseDto {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ItemDtoForRequest{
+    public static class ItemDtoForRequest {
         private Long id;
         private String name;
         private String description;

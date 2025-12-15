@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class UserMapper {
+public final class UserMapper {
 
     public static UserDto toUserDto(User user) {
         UserDto userDto = new UserDto();

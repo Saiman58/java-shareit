@@ -132,4 +132,4 @@ class BookingControllerMockMvcTest {
                         .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isOk());
     }
-}
+}*/

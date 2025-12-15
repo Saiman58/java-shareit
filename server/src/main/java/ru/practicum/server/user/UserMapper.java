@@ -2,6 +2,7 @@ package ru.practicum.server.user;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+
 import ru.practicum.dto.user.UserDto;
 
 import java.time.Instant;

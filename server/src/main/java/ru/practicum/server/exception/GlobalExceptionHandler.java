@@ -37,9 +37,6 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("Внутренняя ошибка сервера", exception.getMessage());
     }
 
-    public record ErrorResponse(String error, String message) {
-    }
-
     //проверка аннотаций (400)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

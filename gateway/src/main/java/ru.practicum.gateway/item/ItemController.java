@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.gateway.exception.GatewayValidationException;
 
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class ItemController {
     @GetMapping("/{itemId}")
     public ResponseEntity<Object> getItemById(
             @Positive @PathVariable Long itemId,
-            @Valid @RequestHeader(value = userHeader, required = false) Long ownerId) {
+            @RequestHeader(value = userHeader, required = false) Long ownerId) {
         log.info("GET /items/{} - Запрос на просмотр информации вещи с id: {}", itemId, itemId);
         return itemClient.getItemById(itemId, ownerId);
     }
@@ -49,6 +50,9 @@ public class ItemController {
             @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
             @RequestParam(defaultValue = "10") Integer size) {
         log.info("GET /items - Вещи владельца {}, from={}, size={}", ownerId, from, size);
+
+        validatePaginationParams(from, size);
+
         return itemClient.getMyItems(ownerId);
     }
 
@@ -91,8 +95,25 @@ public class ItemController {
             @Positive(message = "ID пользователя должен быть больше 0") @RequestHeader(userHeader) Long ownerId,
             @Valid @RequestBody CommentDto commentDto) {
         log.info("POST /items/{}/comment - Запрос на добавление комментария пользователем {}", itemId, ownerId);
-        log.info("POST /items/{}/comment - Комментарий успешно добавлен", itemId);
+
+        if (commentDto.getText() == null || commentDto.getText().isBlank()) {
+            throw new GatewayValidationException("Текст комментария не может быть пустым");
+        }
+        if (commentDto.getText().length() > 512) {
+            throw new GatewayValidationException("Комментарий не может превышать 512 символов");
+        }
+
         return itemClient.addComment(ownerId, itemId, commentDto);
+    }
+
+    // Метод проверки пагинации
+    private void validatePaginationParams(Integer from, Integer size) {
+        if (from < 0) {
+            throw new GatewayValidationException("Параметр 'from' не может быть отрицательным");
+        }
+        if (size <= 0) {
+            throw new GatewayValidationException("Параметр 'size' должен быть положительным");
+        }
     }
 
 }

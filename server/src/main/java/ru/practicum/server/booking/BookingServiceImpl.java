@@ -142,7 +142,7 @@ public class BookingServiceImpl implements BookingService {
 
     //Получение списка бронирований для всех вещей текущего пользователя
     @Override
-    public List<BookingResponseDto> getOwnerBookings(Long ownerId, String state, int from, int size) {
+    public List<BookingResponseDto> getOwnerBookings(Long ownerId, BookingState state, int from, int size) {
         userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
@@ -153,20 +153,20 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings;
 
         // Фильтрация по состоянию
-        switch (state.toUpperCase()) {
-            case "CURRENT":
+        switch (state) {
+            case CURRENT:
                 bookings = bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfter(ownerId, now, now, pageable);
                 break;
-            case "PAST":
+            case PAST:
                 bookings = bookingRepository.findByItemOwnerIdAndEndBefore(ownerId, now, pageable);
                 break;
-            case "FUTURE":
+            case FUTURE:
                 bookings = bookingRepository.findByItemOwnerIdAndStartAfter(ownerId, now, pageable);
                 break;
-            case "WAITING":
+            case WAITING:
                 bookings = bookingRepository.findByItemOwnerIdAndStatus(ownerId, BookingStatus.WAITING, pageable);
                 break;
-            case "REJECTED":
+            case REJECTED:
                 bookings = bookingRepository.findByItemOwnerIdAndStatus(ownerId, BookingStatus.REJECTED, pageable);
                 break;
             default: // "ALL"

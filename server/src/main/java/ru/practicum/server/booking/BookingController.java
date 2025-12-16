@@ -1,6 +1,5 @@
 package ru.practicum.server.booking;
 
-import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.booking.BookingDto;
-
 
 import ru.practicum.dto.booking.BookingResponseDto;
 import ru.practicum.dto.booking.BookingState;
@@ -33,7 +31,7 @@ public class BookingController {
     @PostMapping
     public BookingResponseDto createBooking(
             @RequestHeader("X-Sharer-User-Id") Long bookerId,
-            @Valid @RequestBody BookingDto bookingDto) {
+            @RequestBody BookingDto bookingDto) {
         log.info("POST /bookings - Запрос на создание бронирования пользователем {}: {}", bookerId, bookingDto);
         BookingResponseDto result = bookingService.createBooking(bookerId, bookingDto);
         log.info("POST /bookings - Бронирование успешно создано: {}", result);
@@ -59,13 +57,14 @@ public class BookingController {
         log.info("GET /bookings/{} - Запрос на получение бронирования пользователем {}", bookingId, bookerId);
         BookingResponseDto result = bookingService.getBookingById(bookingId, bookerId);
         log.info("GET /bookings/{} - Бронирование получено: {}", bookingId, result);
+
         return result;
     }
 
     // получение списка всех бронирований текущего пользователя GET /bookings?state={state}
     @GetMapping
     public List<BookingResponseDto> getUserBookings(@RequestHeader("X-Sharer-User-Id") Long bookerId,
-                                                    @RequestParam(defaultValue = "ALL") BookingState state,
+                                                    @RequestParam(defaultValue = "ALL") BookingState  state,
                                                     @RequestParam(defaultValue = "0") int from,
                                                     @RequestParam(defaultValue = "10") int size) {
         log.info("GET /bookings - Запрос списка бронирований пользователя: userId={}, state={}, from={}, size={}",
@@ -92,13 +91,12 @@ public class BookingController {
     @GetMapping("/owner")
     public List<BookingResponseDto> getOwnerBookings(
             @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestParam(defaultValue = "ALL") String state,
+            @RequestParam(defaultValue = "ALL") BookingState state,
             @RequestParam(defaultValue = "0") int from,
             @RequestParam(defaultValue = "10") int size) {
         log.info("GET /bookings/owner - Запрос списка бронирований владельца: ownerId={}, state={}, from={}, size={}",
                 userId, state, from, size);
-        List<BookingResponseDto> result = bookingService.getOwnerBookings(userId, state, from, size);
-        log.info("GET /bookings/owner - Найдено {} бронирований для владельца {}", result.size(), userId);
-        return result;
+
+        return bookingService.getOwnerBookings(userId, state, from, size);
     }
 }

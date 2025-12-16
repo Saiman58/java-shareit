@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.gateway.exception.GatewayValidationException;
 
 @Slf4j
 @Validated
@@ -26,9 +27,7 @@ public class ItemRequestController {
             @RequestHeader(userHeader) Long userId,
             @Valid @RequestBody ItemRequestDto itemRequestDto) {
 
-        log.info("POST /requests - Создание запроса пользователем {}: {}",
-                userId, itemRequestDto.getDescription());
-
+        log.info("POST /requests - Создание запроса пользователем {}", userId);
         return itemRequestClient.createRequest(userId, itemRequestDto);
     }
 
@@ -39,7 +38,6 @@ public class ItemRequestController {
             @RequestHeader(userHeader) Long userId) {
 
         log.info("GET /requests - Получение запросов пользователя {}", userId);
-
         return itemRequestClient.getMyRequests(userId);
     }
 
@@ -51,8 +49,9 @@ public class ItemRequestController {
             @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
             @Positive @RequestParam(defaultValue = "10") Integer size) {
 
-        log.info("GET /requests/all - Чужие запросы для пользователя {}, from={}, size={}",
-                userId, from, size);
+        log.info("GET /requests/all - userId={}, from={}, size={}", userId, from, size);
+
+        validatePaginationParams(from, size);
 
         return itemRequestClient.getAllOtherRequests(userId, from, size);
     }
@@ -66,7 +65,16 @@ public class ItemRequestController {
             @PathVariable Long requestId) {
 
         log.info("GET /requests/{} - Просмотр запроса пользователем {}", requestId, userId);
-
         return itemRequestClient.getRequestById(requestId, userId);
+    }
+
+    // =============== Валидация пагинации ===============
+    private void validatePaginationParams(Integer from, Integer size) {
+        if (from < 0) {
+            throw new GatewayValidationException("Параметр 'from' не может быть отрицательным");
+        }
+        if (size <= 0) {
+            throw new GatewayValidationException("Параметр 'size' должен быть положительным");
+        }
     }
 }

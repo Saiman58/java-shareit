@@ -2,6 +2,7 @@ package ru.practicum.gateway.booking;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
+import ru.practicum.dto.booking.BookingState;
 import ru.practicum.gateway.client.ClientRestFactory;
 import ru.practicum.dto.booking.BookingDto;
 import ru.practicum.gateway.client.BaseClient;
@@ -62,13 +63,15 @@ public class BookingClient extends BaseClient {
         return get(path, userId, parameters);
     }
 
-    public ResponseEntity<Object> getOwnerBookings(Long ownerId, String state, Integer from, Integer size) {
+    public ResponseEntity<Object> getOwnerBookings(Long ownerId, BookingState state, Integer from, Integer size) {
         log.debug("BookingClient: получение бронирований владельца {}, state={}, from={}, size={}",
                 ownerId, state, from, size);
 
+        String stateString = state.name();
+
         String path = "/owner?state={state}&from={from}&size={size}";
         Map<String, Object> parameters = Map.of(
-                "state", state,
+                "state", stateString,
                 "from", from,
                 "size", size
         );

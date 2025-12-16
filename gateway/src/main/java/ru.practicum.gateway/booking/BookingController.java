@@ -1,7 +1,6 @@
 package ru.practicum.gateway.booking;
 
 import ru.practicum.dto.booking.BookingDto;
-import ru.practicum.dto.exception.ShareitValidationException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -10,6 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.dto.booking.BookingState;
+import ru.practicum.gateway.exception.GatewayValidationException;
+
+import java.time.LocalDateTime;
 
 @Slf4j
 @Validated
@@ -29,7 +32,8 @@ public class BookingController {
 
         log.info("POST /bookings - Запрос на создание бронирования пользователем {}: {}", bookerId, bookingDto);
 
-        log.info("POST /bookings - Бронирование успешно создано");
+        validateBookingDates(bookingDto);
+
         return bookingClient.createBooking(bookerId, bookingDto);
     }
 
@@ -46,7 +50,7 @@ public class BookingController {
                 bookingId, approved, userId);
 
         if (approved == null) {
-            throw new ShareitValidationException("Параметр 'approved' обязателен");
+            throw new GatewayValidationException("Параметр 'approved' обязателен");
         }
 
         log.info("PATCH /bookings/{} - Статус бронирования успешно изменен", bookingId);
@@ -81,7 +85,6 @@ public class BookingController {
 
         validatePaginationParams(from, size);
 
-        // Без переменной result, сразу возвращаем
         return bookingClient.getUserBookings(userId, state, from, size);
     }
 
@@ -90,14 +93,16 @@ public class BookingController {
     public ResponseEntity<Object> getOwnerBookings(
             @Positive(message = "ID владельца должен быть больше 0")
             @RequestHeader(userHeader) Long userId,
-            @RequestParam(defaultValue = "ALL") String state,
+            @RequestParam(defaultValue = "ALL") BookingState state,
             @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
             @Positive @RequestParam(defaultValue = "10") Integer size) {
 
         log.info("GET /bookings/owner - Запрос списка бронирований владельца: ownerId={}, state={}, from={}, size={}",
                 userId, state, from, size);
 
-        // Без переменной result
+        validatePaginationParams(from, size);
+
+
         return bookingClient.getOwnerBookings(userId, state, from, size);
     }
 
@@ -105,12 +110,22 @@ public class BookingController {
     private void validatePaginationParams(Integer from, Integer size) {
         if (from < 0) {
             log.warn("Валидация пагинации: параметр 'from' не может быть отрицательным: from={}", from);
-            throw new ShareitValidationException("Параметр 'from' не может быть отрицательным");
+            throw new GatewayValidationException("Параметр 'from' не может быть отрицательным");
         }
         if (size <= 0) {
             log.warn("Валидация пагинации: параметр 'size' должен быть положительным: size={}", size);
-            throw new ShareitValidationException("Параметр 'size' должен быть положительным");
+            throw new GatewayValidationException("Параметр 'size' должен быть положительным");
         }
         log.debug("Валидация пагинации пройдена: from={}, size={}", from, size);
+    }
+
+
+    private void validateBookingDates(BookingDto bookingDto) {
+        if (bookingDto.getStart().isBefore(LocalDateTime.now())) {
+            throw new GatewayValidationException("Дата начала не может быть в прошлом");
+        }
+        if (!bookingDto.getEnd().isAfter(bookingDto.getStart())) {
+            throw new GatewayValidationException("Дата окончания должна быть после даты начала");
+        }
     }
 }

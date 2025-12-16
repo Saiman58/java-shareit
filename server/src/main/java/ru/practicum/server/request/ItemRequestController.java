@@ -13,7 +13,6 @@ import ru.practicum.dto.request.ItemRequestResponseDto;
 
 import java.util.List;
 
-@Validated
 @RestController
 @RequestMapping("/requests")
 public class ItemRequestController {
@@ -30,8 +29,8 @@ public class ItemRequestController {
     //создать запрос
     @PostMapping
     public ItemRequestResponseDto createRequest(
-            @Positive @RequestHeader("X-Sharer-User-Id") Long userId,
-            @Valid @RequestBody ItemRequestDto itemRequestDto) {
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestBody ItemRequestDto itemRequestDto) {
         log.info("POST /requests - Создание запроса пользователем {}: {}", userId, itemRequestDto.getDescription());
 
         return itemRequestService.createRequest(userId, itemRequestDto);
@@ -39,7 +38,7 @@ public class ItemRequestController {
 
     //получить все запросы текущего пользователя
     @GetMapping
-    public List<ItemRequestResponseDto> getMyRequests(@Positive @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemRequestResponseDto> getMyRequests(@RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("GET /requests - Получение запросов пользователя {}", userId);
 
         return itemRequestService.getUserRequests(userId);
@@ -48,9 +47,9 @@ public class ItemRequestController {
     //получение запросов других пользователей
     @GetMapping("/all")
     List<ItemRequestResponseDto> getAllOtherRequests(
-            @Positive @RequestHeader("X-Sharer-User-Id") Long userId,
-            @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
-            @Positive @RequestParam(defaultValue = "10") Integer size) {
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestParam(defaultValue = "0") Integer from,
+            @RequestParam(defaultValue = "10") Integer size) {
 
         log.info("GET /requests/all - Чужие запросы для пользователя {}, from={}, size={}", userId, from, size);
 
@@ -60,8 +59,8 @@ public class ItemRequestController {
     //получение конкретного запроса по ID
     @GetMapping("/{requestId}")
     public ItemRequestResponseDto getRequestById(
-            @Positive @RequestHeader("X-Sharer-User-Id") Long userId,
-            @Positive @PathVariable Long requestId) {
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @PathVariable Long requestId) {
 
         log.info("GET /requests/{} - Просмотр запроса пользователем {}", requestId, userId);
 

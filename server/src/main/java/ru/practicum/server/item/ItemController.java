@@ -13,7 +13,6 @@ import ru.practicum.dto.item.ItemDto;
 import java.util.Collection;
 import java.util.List;
 
-@Validated
 @RestController
 @RequestMapping("/items")
 public class ItemController {
@@ -30,7 +29,7 @@ public class ItemController {
     @PostMapping
     public ItemDto createItemDto(
             @RequestHeader("X-Sharer-User-Id") Long ownerId,
-            @Valid @RequestBody ItemDto itemDto) {
+            @RequestBody ItemDto itemDto) {
         log.info("POST/items - Запрос на создание вещи пользователем {}: {}", ownerId, itemDto);
         return itemService.createItem(ownerId, itemDto);
     }
@@ -38,14 +37,14 @@ public class ItemController {
 
     //просмотр вещи по id
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@Positive @PathVariable Long itemId) {
+    public ItemDto getItemById(@PathVariable Long itemId) {
         log.info("GET/items/{} - Запрос на просмотр информации вещи с id: {}", itemId, itemId);
         return itemService.getItemById(itemId);  // любой пользователь
     }
 
     //просмотр вещй владельца
     @GetMapping()
-    public Collection<ItemDto> getMyItems(@Positive @RequestHeader("X-Sharer-User-Id") Long ownerId) {
+    public Collection<ItemDto> getMyItems(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
         log.info("GET/items - Запрос на вывод вещей владельца: {}", ownerId);
         return itemService.getItemsByOwner(ownerId);  // только свои вещи
     }
@@ -54,10 +53,6 @@ public class ItemController {
     @GetMapping("/search")
     public Collection<ItemDto> searchItem(@RequestParam String text) {
         log.info("GET/items/search - Запрос на поиск вещей по тексту: '{}'", text);
-
-        if (text.isEmpty()) {
-            return List.of();
-        }
         return itemService.searchAvailableItems(text);
     }
 

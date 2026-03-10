@@ -6,13 +6,13 @@ services:
     container_name: shareit-postgres
 
     environment:
-      POSTGRES_DB: shareit
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: shareit
 
     ports:
       - "5432:5432"
 
-#      - shareit-data:/var/lib/postgresql/data
+      #- shareit-data:/var/lib/postgresql/data
       # docker-compose up -d
       # docker ps
